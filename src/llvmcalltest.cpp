@@ -8,8 +8,13 @@
 
 #include "codegen_shared.h"
 
+#ifdef _OS_WINDOWS_
+#define JL_DLLEXPORT __declspec(dllexport)
+#define JL_DLLIMPORT __declspec(dllimport)
+#endif
+
 using namespace llvm;
-extern LLVMContext jl_LLVMContext;
+extern JL_DLLIMPORT LLVMContext jl_LLVMContext;
 
 extern "C" {
 
