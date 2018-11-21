@@ -8,19 +8,13 @@
 
 #include "codegen_shared.h"
 
-#ifdef _OS_WINDOWS_
-#define JL_DLLEXPORT __declspec(dllexport)
-#define JL_DLLIMPORT __declspec(dllimport)
-#endif
-
 using namespace llvm;
-extern JL_DLLIMPORT LLVMContext jl_LLVMContext;
 
 extern "C" {
 
 JL_DLLEXPORT llvm::Function *MakeIdentityFunction(llvm::PointerType *AnyTy) {
     Type *TrackedTy = PointerType::get(AnyTy->getElementType(), AddressSpace::Tracked);
-    Module *M = new llvm::Module("shadow", jl_LLVMContext);
+    Module *M = new llvm::Module("shadow", AnyTy->getContext());
     Function *F = Function::Create(
         FunctionType::get(
             TrackedTy, {TrackedTy}, false),
@@ -29,7 +23,7 @@ JL_DLLEXPORT llvm::Function *MakeIdentityFunction(llvm::PointerType *AnyTy) {
         M
     );
 
-    IRBuilder<> Builder(BasicBlock::Create(jl_LLVMContext, "top", F));
+    IRBuilder<> Builder(BasicBlock::Create(AnyTy->getContext(), "top", F));
     Builder.CreateRet(&*F->arg_begin());
 
     return F;
